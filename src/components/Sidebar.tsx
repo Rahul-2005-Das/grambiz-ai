@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import {
   Home,
   TrendingUp,
+  Compass,
   Bot,
   MapPin,
   Wallet,
@@ -32,9 +33,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, setCurrentTab }) =
     { id: 'home', label: t.nav.home, icon: Home },
     { id: 'advisor', label: t.nav.advisor, icon: Bot, badge: 'Voice' },
     { id: 'discover', label: t.nav.discover, icon: TrendingUp },
+    { id: 'feasibility', label: t.nav.feasibility, icon: Compass, badge: 'PS Core' },
     { id: 'market', label: t.nav.market, icon: MapPin },
+    { id: 'funding', label: t.nav.funding, icon: Coins, badge: 'Scheme' },
     { id: 'money', label: t.nav.money, icon: Wallet },
-    { id: 'funding', label: t.nav.funding, icon: Coins },
   ];
 
   const toolsNav = [

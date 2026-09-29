@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
-import { Globe, Mic, Volume2, VolumeX, Menu, X, Sparkles } from 'lucide-react';
+import { Globe, Mic, Volume2, VolumeX, Menu, X, Sparkles, Play, Compass } from 'lucide-react';
 import { Language } from '../types';
+import { DemoModeModal } from './DemoModeModal';
 
 interface NavbarProps {
   currentTab: string;
@@ -14,6 +15,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
   const { user } = useAuth();
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [demoModalOpen, setDemoModalOpen] = useState(false);
 
   const languages: { code: Language; label: string; native: string }[] = [
     { code: 'bn', label: 'Bengali', native: 'বাংলা' },
@@ -114,6 +116,16 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
             >
               <Mic className="w-4 h-4 text-emerald-600" />
               <span className="font-medium">{t.advisor.speakBtn}</span>
+            </button>
+
+            {/* 1-Click SIH Demo Mode Trigger Button */}
+            <button
+              onClick={() => setDemoModalOpen(true)}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-amber-900 bg-amber-100 hover:bg-amber-200 border border-amber-300 rounded-xl transition-all shadow-2xs active:scale-95"
+              title="Launch Guided SIH Hackathon Demo Walkthrough"
+            >
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+              <span>🎯 {t.nav.sihDemo || 'SIH Demo'}</span>
             </button>
 
             {/* Language Switcher Dropdown */}
@@ -265,6 +277,20 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
             {t.nav.reports}
           </button>
           <button
+            onClick={() => { setCurrentTab('feasibility'); setMobileMenuOpen(false); }}
+            className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium ${
+              currentTab === 'feasibility' ? 'bg-emerald-50 text-emerald-700 font-semibold' : 'text-stone-700'
+            }`}
+          >
+            🧭 {t.nav.feasibility || 'Hyper-Local Feasibility'}
+          </button>
+          <button
+            onClick={() => { setDemoModalOpen(true); setMobileMenuOpen(false); }}
+            className="w-full text-left px-3 py-2 rounded-lg text-sm font-bold bg-amber-50 text-amber-900 border border-amber-200"
+          >
+            🎯 {t.nav.sihDemo || 'SIH Demo Walkthrough'}
+          </button>
+          <button
             onClick={() => { setCurrentTab('settings'); setMobileMenuOpen(false); }}
             className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium ${
               currentTab === 'settings' ? 'bg-emerald-50 text-emerald-700 font-semibold' : 'text-stone-700'
@@ -274,6 +300,15 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, setCurrentTab }) => 
           </button>
         </div>
       )}
+
+      {/* SIH Demo Scenario Modal */}
+      <DemoModeModal
+        isOpen={demoModalOpen}
+        onClose={() => setDemoModalOpen(false)}
+        onLaunchDemo={(targetTab) => {
+          setCurrentTab(targetTab);
+        }}
+      />
     </header>
   );
 };

@@ -11,6 +11,7 @@ import { Dashboard } from './pages/Dashboard';
 import { BusinessDiscovery } from './pages/BusinessDiscovery';
 import { AIAdvisor } from './pages/AIAdvisor';
 import { LocalMarket } from './pages/LocalMarket';
+import { HyperLocalFeasibility } from './pages/HyperLocalFeasibility';
 import { FinancialPlanner } from './pages/FinancialPlanner';
 import { Funding } from './pages/Funding';
 import { BusinessPlan } from './pages/BusinessPlan';
@@ -25,7 +26,7 @@ import { BusinessIdea } from './types';
 
 const MainAppContent: React.FC = () => {
   const { language, setLanguage, t } = useLanguage();
-  const { user, hasCompletedOnboarding } = useAuth();
+  const { user, hasCompletedOnboarding, updateUser } = useAuth();
 
   // Screen controller: 'landing' | 'language' | 'onboarding' | 'app'
   const [screen, setScreen] = useState<'landing' | 'language' | 'onboarding' | 'app'>(() => {
@@ -64,9 +65,29 @@ const MainAppContent: React.FC = () => {
     }
   };
 
+  const handleStartDemo = () => {
+    setLanguage('bn');
+    updateUser({
+      name: 'Ramesh Das (রমেশ দাস)',
+      phone: '9876543210',
+      state: 'West Bengal',
+      district: 'Nadia',
+      villageOrTown: 'Ranaghat Block Center',
+      availableCapital: 100000,
+      businessCategory: 'Dairy',
+      selectedBusiness: 'Mini Dairy & Fresh Milk Collection',
+      skills: ['agri', 'shop'],
+      hasSpaceOrShop: true,
+      workPreference: 'full_time',
+      onboardingCompleted: true
+    });
+    setScreen('app');
+    setCurrentTab('feasibility');
+  };
+
   const handleSelectBusinessFromDiscovery = (idea: BusinessIdea) => {
-    // Navigate straight to financial planning with selected business context
-    setCurrentTab('money');
+    // Navigate straight to Hyper-Local Feasibility Analysis per PS user journey
+    setCurrentTab('feasibility');
   };
 
   // Accessibility class modifiers
@@ -88,6 +109,7 @@ const MainAppContent: React.FC = () => {
           <Landing
             onStart={handleStartFromLanding}
             onExplore={() => setScreen('app')}
+            onStartDemo={handleStartDemo}
           />
         </>
       )}
@@ -126,11 +148,14 @@ const MainAppContent: React.FC = () => {
               {currentTab === 'discover' && (
                 <BusinessDiscovery onSelectBusiness={handleSelectBusinessFromDiscovery} />
               )}
+              {currentTab === 'feasibility' && (
+                <HyperLocalFeasibility onNavigate={setCurrentTab} />
+              )}
               {currentTab === 'advisor' && <AIAdvisor />}
               {currentTab === 'market' && <LocalMarket />}
               {currentTab === 'money' && <FinancialPlanner />}
-              {currentTab === 'funding' && <Funding />}
-              {currentTab === 'plan' && <BusinessPlan />}
+              {currentTab === 'funding' && <Funding onNavigate={setCurrentTab} />}
+              {currentTab === 'plan' && <BusinessPlan onNavigate={setCurrentTab} />}
               {currentTab === 'health' && <BusinessHealth />}
               {currentTab === 'daily' && <DailyHelper />}
               {currentTab === 'tracker' && <SalesExpenses />}

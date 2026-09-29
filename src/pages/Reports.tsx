@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 import { formatINR } from '../services/financialService';
+import { calculateSmartStructuring, calculateRepaymentDetails } from '../data/schemeConfig';
+import { getFeasibilityFor } from '../data/feasibilityData';
 import {
   FileText,
   Printer,
@@ -32,8 +34,24 @@ import {
 export const Reports: React.FC = () => {
   const { language, t } = useLanguage();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'dpr' | 'docs'>('docs');
+  const [activeTab, setActiveTab] = useState<'dpr' | 'docs'>('dpr');
   const [downloading, setDownloading] = useState(false);
+
+  const margin = user.availableCapital || 100000;
+  const structuring = calculateSmartStructuring(margin);
+  const scheme = structuring.recommendedScheme;
+  const repayment = calculateRepaymentDetails(
+    structuring.eligibleLoanAmount || 90000,
+    scheme ? scheme.interestRateAnnual : 8.0,
+    scheme ? scheme.tenureMonths : 84,
+    scheme ? scheme.moratoriumMonths : 6
+  );
+  const feasibility = getFeasibilityFor(
+    user.state || 'West Bengal',
+    user.district || 'Nadia',
+    user.businessCategory || 'Dairy',
+    margin
+  );
 
   const handlePrint = () => {
     window.print();
@@ -62,44 +80,44 @@ Work Commitment: ${user.workPreference === 'full_time' ? 'Full-Time (8-10 hrs/da
 
 2. CAPITAL REQUIREMENT & STRUCTURING (INR)
 ------------------------------------------------------------
-Own Available Capital: ${formatINR(user.availableCapital || 25000)}
-Total Initial Project Outlay: ${formatINR(35000)}
-  - Equipment & Machinery: ${formatINR(18000)}
-  - Initial Raw Material Stock: ${formatINR(8000)}
-  - Site Renovation & Signboard: ${formatINR(4000)}
-  - Statutory / Permit Fees: ${formatINR(1000)}
-  - Emergency Reserve Fund: ${formatINR(4000)}
+Own Available Margin Capital: ${formatINR(margin)} (10% Promoter Contribution)
+Estimated Total Project Cost: ${formatINR(structuring.estimatedProjectCost)} (Margin / 10%)
+Potential Debt / Loan Component: ${formatINR(structuring.eligibleLoanAmount)} (Up to 90%)
+Recommended Scheme: ${scheme ? scheme.name : 'Institutional Term Loan'}
+Annual Interest Rate: ${scheme ? scheme.interestRateAnnual : 8.0}% p.a.
+Tenure: ${scheme ? scheme.tenureYears : 7} Years (${scheme ? scheme.tenureMonths : 84} Months)
+Moratorium Grace Period: ${scheme ? scheme.moratoriumMonths : 6} Months
 
-External Funding / Loan Gap: ${formatINR(Math.max(0, 35000 - (user.availableCapital || 25000)))}
-
-3. PRO-FORMA MONTHLY OPERATING ECONOMICS
+3. REPAYMENT & AMORTIZATION
 ------------------------------------------------------------
-Projected Gross Monthly Revenue: ${formatINR(28000)}
-Monthly Operating Expenses:
-  - Raw Materials / Feed / Inputs: ${formatINR(8000)}
-  - Facility Rent: ${formatINR(2000)}
-  - Utilities & Power: ${formatINR(800)}
-  - Transport & Freight: ${formatINR(1200)}
-  - Packaging & Sundry: ${formatINR(500)}
-Total Monthly Operating Expenses: ${formatINR(12500)}
+Estimated Monthly EMI: ${formatINR(repayment.monthlyEMI)} / month
+Estimated Quarterly Repayment: ${formatINR(repayment.quarterlyRepayment)} / quarter
+Estimated Total Interest: ${formatINR(repayment.totalInterest)}
+Estimated Total Repayment: ${formatINR(repayment.totalRepayment)}
 
-Net Monthly Operating Profit (EBITDA): ${formatINR(15500)}
-Net Operating Margin: 55.3%
-Estimated Break-Even Point: ${formatINR(12500)}/month (~14 days of monthly volume)
-
-4. LOCAL MARKET VIABILITY (${user.district}, ${user.state})
+4. HYPER-LOCAL MARKET FEASIBILITY (${user.district}, ${user.state})
 ------------------------------------------------------------
-- Ground Demand Index: HIGH (Daily staple demand across village clusters)
-- Main Customer Segments: Village households (55%), Sweet makers & tea stalls (30%), Commuters (15%)
-- Logistic Connectivity: Within 25 mins of Block headquarters via battery auto-rickshaws
+Ground Demand Level: ${feasibility.localDemand.level}
+Market Reach Radius: ~${feasibility.marketReach.estimatedRadiusKm} km (${feasibility.marketReach.potentialCustomerBase})
+Primary Local Opportunity: ${feasibility.opportunityAnalysis.primaryOpportunity}
+Underserved Local Niche: ${feasibility.opportunityAnalysis.underservedNiche}
+Competitor Density (10km): ${feasibility.competitors.densityLevel} (${feasibility.competitors.estimatedCountIn10Km})
+Local Pricing Range: ${feasibility.pricing.estimatedPriceRange}
 
-5. RISK MITIGATION & OPERATING DISCIPLINE
+5. RISK MITIGATION & OPERATING COVENANTS
 ------------------------------------------------------------
 1. Strict 7-day revolving ceiling on customer credit with maximum ₹500 balance per household.
 2. 10% emergency buffer preserved in separate bank account.
 3. Advance pre-orders locked with local sweet stalls and households.
 
-6. BORROWER DECLARATION & BANK ENDORSEMENT
+6. FIRST 30 DAYS ACTION PLAN
+------------------------------------------------------------
+- Days 1-7: Site preparation, shed disinfection, and initial feed wholesale procurement.
+- Days 8-15: Sourcing 1st high-yield cow from verified veterinary certified fair.
+- Days 16-23: Doorstep trial distribution to 20 neighbor households and 2 local sweet makers.
+- Days 24-30: Cash collection routine, recording sales in Daily Khata, and reviewing health score.
+
+7. BORROWER UNDERTAKING & BANK ENDORSEMENT
 ------------------------------------------------------------
 Applicant Signature: _______________________ (${user.name})
 Branch Appraiser Signature & Seal: _______________________
@@ -731,68 +749,95 @@ GramBiz AI is a voice-first, multilingual digital business companion engineered 
           {/* Section 2: Capital Structuring & Own Contribution */}
           <div>
             <h3 className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-2.5">
-              2. Capital Structuring & Financing Analysis
+              2. Capital Structuring & Scheme Financing Analysis
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200">
                 <span className="text-[11px] text-stone-500 block font-medium">Total Project Setup Cost</span>
-                <span className="text-xl font-black text-stone-900 mt-1 block tabular-nums">{formatINR(35000)}</span>
-                <span className="text-[10px] text-stone-400">Equipment + Setup + Buffer</span>
+                <span className="text-xl font-black text-stone-900 mt-1 block tabular-nums">
+                  {formatINR(structuring.estimatedProjectCost)}
+                </span>
+                <span className="text-[10px] text-stone-400">Formula: Margin ÷ 10%</span>
               </div>
               <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200">
-                <span className="text-[11px] text-emerald-800 block font-medium">Own Promoters Equity</span>
-                <span className="text-xl font-black text-emerald-950 mt-1 block tabular-nums">{formatINR(user.availableCapital || 25000)}</span>
-                <span className="text-[10px] text-emerald-700">71.4% Promoters Stake</span>
+                <span className="text-[11px] text-emerald-800 block font-medium">Own Margin Contribution</span>
+                <span className="text-xl font-black text-emerald-950 mt-1 block tabular-nums">
+                  {formatINR(margin)}
+                </span>
+                <span className="text-[10px] text-emerald-700">10% Promoter Equity Stake</span>
               </div>
               <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200">
-                <span className="text-[11px] text-amber-800 block font-medium">External Credit / Gap</span>
-                <span className="text-xl font-black text-amber-950 mt-1 block tabular-nums">{formatINR(Math.max(0, 35000 - (user.availableCapital || 25000)))}</span>
-                <span className="text-[10px] text-amber-700">Eligible under Mudra / SHG</span>
+                <span className="text-[11px] text-amber-800 block font-medium">Eligible Debt Funding (90%)</span>
+                <span className="text-xl font-black text-amber-950 mt-1 block tabular-nums">
+                  {formatINR(structuring.eligibleLoanAmount)}
+                </span>
+                <span className="text-[10px] text-amber-700">
+                  {scheme ? scheme.name : 'Term Loan Scheme'} ({scheme ? scheme.interestRateAnnual : 8.0}% p.a.)
+                </span>
+              </div>
+            </div>
+
+            {/* Scheme Parameters Callout */}
+            <div className="mt-3 p-3.5 rounded-2xl bg-stone-50 border border-stone-200 text-xs flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <strong>Recommended Scheme:</strong> {scheme ? scheme.name : 'Term Loan Scheme'} ({scheme ? scheme.tenureYears : 7} Yrs Amortization)
+              </div>
+              <div className="text-amber-800 font-bold">
+                Moratorium: {scheme ? scheme.moratoriumMonths : 6} Months Grace Period
               </div>
             </div>
           </div>
 
-          {/* Section 3: Pro-Forma Income & Expense Summary */}
+          {/* Section 3: Repayment & Operating Economics Summary */}
           <div>
             <h3 className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-2.5">
-              3. Monthly Pro-Forma Operating Economics
+              3. Loan Repayment & Pro-Forma Economics
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 text-stone-900">
               <div>
-                <span className="text-[10px] text-stone-500 font-bold block">Gross Monthly Sales</span>
-                <span className="text-base font-black tabular-nums">{formatINR(28000)}</span>
-              </div>
-              <div>
-                <span className="text-[10px] text-stone-500 font-bold block">Monthly Overhead & COGS</span>
-                <span className="text-base font-black tabular-nums">{formatINR(12500)}</span>
-              </div>
-              <div>
-                <span className="text-[10px] text-stone-500 font-bold block">Net Operating Profit</span>
-                <span className="text-base font-black text-emerald-800 tabular-nums">
-                  {formatINR(15500)}/mo
+                <span className="text-[10px] text-stone-500 font-bold block">Estimated Monthly EMI</span>
+                <span className="text-base font-black text-emerald-900 tabular-nums">
+                  {formatINR(repayment.monthlyEMI)}/mo
                 </span>
               </div>
               <div>
-                <span className="text-[10px] text-stone-500 font-bold block">Operating Margin</span>
-                <span className="text-base font-black text-emerald-800 tabular-nums">55.3%</span>
+                <span className="text-[10px] text-stone-500 font-bold block">Quarterly Repayment</span>
+                <span className="text-base font-black tabular-nums">
+                  {formatINR(repayment.quarterlyRepayment)}/qtr
+                </span>
+              </div>
+              <div>
+                <span className="text-[10px] text-stone-500 font-bold block">Estimated Total Interest</span>
+                <span className="text-base font-black text-stone-800 tabular-nums">
+                  {formatINR(repayment.totalInterest)}
+                </span>
+              </div>
+              <div>
+                <span className="text-[10px] text-stone-500 font-bold block">Total Repayment Amount</span>
+                <span className="text-base font-black text-emerald-900 tabular-nums">
+                  {formatINR(repayment.totalRepayment)}
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Section 4: Local Ground Intelligence */}
+          {/* Section 4: Local Ground Intelligence & Market Feasibility */}
           <div>
             <h3 className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-2.5">
-              4. Local Market Viability Analysis ({user.district}, {user.state})
+              4. Hyper-Local Market Feasibility Analysis ({user.district}, {user.state})
             </h3>
             <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 text-xs leading-relaxed text-stone-700 space-y-2">
               <p>
-                • <strong>Demand Assessment:</strong> High recurrent consumer consumption of fresh cow milk, curd, and cottage cheese driven by domestic households and regional sweet makers.
+                • <strong>Market Reach & Demand:</strong> High ground demand within ~{feasibility.marketReach.estimatedRadiusKm} km covering {feasibility.marketReach.potentialCustomerBase}.
               </p>
               <p>
-                • <strong>Customer Retention:</strong> Doorstep delivery by 7:00 AM secures long-term household subscriptions bypassing third-party dairy intermediaries.
+                • <strong>Primary Opportunity:</strong> {feasibility.opportunityAnalysis.primaryOpportunity}
               </p>
               <p>
-                • <strong>Transportation Feasibility:</strong> Local battery rickshaws (Toto) and rural arterial roads ensure daily distribution within a 5 km radius at minimal freight cost.
+                • <strong>Underserved Local Niche:</strong> {feasibility.opportunityAnalysis.underservedNiche}
+              </p>
+              <p>
+                • <strong>Competitor Density & Differentiation:</strong> {feasibility.competitors.densityLevel} density ({feasibility.competitors.estimatedCountIn10Km}). Strategy: {feasibility.competitors.differentiationStrategy}
               </p>
             </div>
           </div>

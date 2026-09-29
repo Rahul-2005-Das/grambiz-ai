@@ -9,10 +9,11 @@ export const hi: typeof en = {
   nav: {
     home: "होम",
     discover: "व्यापार खोजें",
+    feasibility: "व्यवहार्यता जांच",
     advisor: "एआई सलाहकार",
     market: "स्थानीय बाजार",
     money: "पैसा योजना",
-    funding: "ऋण व पूंजी अंतर",
+    funding: "योजना व ऋण",
     plan: "व्यापार योजना",
     health: "व्यापार स्थिति",
     daily: "आज के कार्य",
@@ -22,6 +23,8 @@ export const hi: typeof en = {
     reports: "रिपोर्ट",
     settings: "सेटिंग्स",
     more: "अधिक",
+    myBusiness: "मेरा व्यापार",
+    sihDemo: "डेमो मोड",
     login: "लॉग इन",
     register: "शुरू करें",
     chooseLanguage: "भाषा"

@@ -22,9 +22,10 @@ import {
 interface LandingProps {
   onStart: () => void;
   onExplore: () => void;
+  onStartDemo?: () => void;
 }
 
-export const Landing: React.FC<LandingProps> = ({ onStart, onExplore }) => {
+export const Landing: React.FC<LandingProps> = ({ onStart, onExplore, onStartDemo }) => {
   const { language, setLanguage, t } = useLanguage();
 
   return (
@@ -64,6 +65,16 @@ export const Landing: React.FC<LandingProps> = ({ onStart, onExplore }) => {
                 <span>{language === 'bn' ? 'আমার ব্যবসা শুরু করুন' : language === 'hi' ? 'मेरा व्यापार शुरू करें' : 'Start My Business'}</span>
                 <ArrowRight className="w-5 h-5" />
               </button>
+
+              {onStartDemo && (
+                <button
+                  onClick={onStartDemo}
+                  className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-base shadow-md transition-all flex items-center justify-center gap-2 active:scale-95"
+                >
+                  <span className="w-2.5 h-2.5 rounded-full bg-white animate-ping" />
+                  <span>🎯 {language === 'bn' ? 'SIH ডেমো ওয়াকথ্রু' : 'SIH Hackathon Demo'}</span>
+                </button>
+              )}
 
               <button
                 onClick={onExplore}

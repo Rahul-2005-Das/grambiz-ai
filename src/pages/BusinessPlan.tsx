@@ -15,15 +15,23 @@ import {
   Building,
   Target,
   Calendar,
-  Volume2
+  Volume2,
+  ArrowRight,
+  ArrowLeft,
+  Edit3
 } from 'lucide-react';
 
-export const BusinessPlan: React.FC = () => {
+interface BusinessPlanProps {
+  onNavigate?: (tab: string) => void;
+}
+
+export const BusinessPlan: React.FC<BusinessPlanProps> = ({ onNavigate }) => {
   const { language, t, speak } = useLanguage();
   const { user } = useAuth();
 
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   // Business inputs for plan
   const [businessTitle, setBusinessTitle] = useState(user.selectedBusiness || 'Mini Dairy & Fresh Milk Collection');
@@ -398,6 +406,34 @@ export const BusinessPlan: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Sticky Bottom Navigation Bar (Hidden in Print) */}
+      <div className="sticky bottom-4 bg-white/95 backdrop-blur-md p-4 sm:p-5 rounded-3xl border border-stone-200 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-3 print:hidden">
+        <button
+          onClick={() => onNavigate && onNavigate('funding')}
+          className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>{language === 'bn' ? '← স্কিম ও ঋণ কাঠামোয় ফিরুন' : '← Back to Scheme Funding'}</span>
+        </button>
+
+        <div className="text-center hidden md:block">
+          <span className="text-xs font-bold text-stone-800 block">
+            {language === 'bn' ? 'পরবর্তী ধাপ: ব্যাংক ডিপিআর ও পিডিএফ এক্সপোর্ট' : 'Next Step: Complete Feasibility DPR (Form DPR-01)'}
+          </span>
+          <span className="text-[10px] text-stone-400">
+            A4 print ready appraisal report for rural bank loan sanction
+          </span>
+        </div>
+
+        <button
+          onClick={() => onNavigate && onNavigate('reports')}
+          className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-sm transition-all active:scale-95"
+        >
+          <span>{language === 'bn' ? 'সম্পূর্ণ সম্ভাব্যতা রিপোর্ট (PDF) →' : 'View Full Feasibility Report (PDF) →'}</span>
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
     </div>
   );
 };

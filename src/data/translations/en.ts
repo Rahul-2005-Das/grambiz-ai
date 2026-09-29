@@ -9,10 +9,11 @@ export const en = {
   nav: {
     home: "Home",
     discover: "Find Business",
+    feasibility: "Feasibility",
     advisor: "AI Advisor",
     market: "Local Market",
     money: "Plan Money",
-    funding: "Loan & Gap",
+    funding: "Scheme & Loan",
     plan: "Business Plan",
     health: "Health Check",
     daily: "Daily Tasks",
@@ -22,6 +23,8 @@ export const en = {
     reports: "Report",
     settings: "Settings",
     more: "More",
+    myBusiness: "My Business",
+    sihDemo: "SIH Demo",
     login: "Log In",
     register: "Start Now",
     chooseLanguage: "Language"

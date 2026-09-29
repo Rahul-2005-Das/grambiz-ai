@@ -9,10 +9,11 @@ export const bn: typeof en = {
   nav: {
     home: "মূল পাতা",
     discover: "ব্যবসা খুঁজুন",
+    feasibility: "সম্ভাব্যতা যাচাই",
     advisor: "এআই পরামর্শদাতা",
     market: "স্থানীয় বাজার",
     money: "টাকা পরিকল্পনা",
-    funding: "ঋণ ও মূলধন ঘাটতি",
+    funding: "স্কিম ও ঋণ",
     plan: "ব্যবসা খসড়া",
     health: "ব্যবসার অবস্থা",
     daily: "আজকের কাজ",
@@ -22,6 +23,8 @@ export const bn: typeof en = {
     reports: "রিপোর্ট",
     settings: "সেটিংস",
     more: "আরও",
+    myBusiness: "আমার ব্যবসা",
+    sihDemo: "ডেমো মোড",
     login: "লগ ইন",
     register: "শুরু করুন",
     chooseLanguage: "ভাষা"
